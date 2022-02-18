@@ -28,6 +28,7 @@ void *proc1(void *arg)
         sleep(1);
     }
     printf("\nПоток 1 закончил свою работу\n");
+    pthread_exit((void*)0);
     return nullptr;
 }
 
@@ -50,6 +51,7 @@ void *proc2(void *arg)
         sleep(1);
     }
     printf("\nПоток 2 закончил свою работу\n");
+    pthread_exit((void*)0);
     return nullptr;
 }
 
@@ -68,8 +70,12 @@ int main()
     printf("Клавиша нажата\n");
     arg1.flag = 1;
     arg2.flag = 1;
-    pthread_join(id1, NULL);
-    pthread_join(id2, NULL);
+
+    
+    int *exitcode1, *exitcode2;
+    pthread_join(id1, (void**)&exitcode1);
+    pthread_join(id2, (void**)&exitcode2);
+    printf("Потоки вернули значения: %p, %p", exitcode1,  exitcode2);
     pthread_mutex_destroy(&mid1);
     printf("\nПрограмма закончила работу\n");
     return 0;
