@@ -21,6 +21,7 @@ void* proc1(void *arg)
     }
     
     printf("\nПоток 1 закончил свою работу\n");
+    pthread_exit((void*)0);
     return 0;
 }
 
@@ -37,6 +38,7 @@ void* proc2(void* arg)
 
     }
     printf("\nПоток 2 закончил свою работу\n");
+    pthread_exit((void*)0);
     return 0;
 }
 
@@ -55,8 +57,14 @@ int main()
    printf("Клавиша нажата\n");
    arg1.flag = 1;
    arg2.flag = 1;
-   pthread_join(id1, NULL);
-   pthread_join(id2, NULL);
+   int* exitcode1, *exitcode2;
+   pthread_join(id1, (void**)&exitcode1);
+   printf("Код первого потока: %p\n", exitcode1);
+
+   pthread_join(id2, (void**)&exitcode2);
+   
+   printf("Код второго потока: %p\n",exitcode2);
+   
     printf("\nПрограмма закончила работу\n");
-   return 0;
+    return 0;
 }
