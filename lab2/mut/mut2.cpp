@@ -16,7 +16,8 @@ void *proc1(void *arg)
     args_t *args = (args_t *)arg;
     while (args->flag == 0)
     {
-        if (pthread_mutex_trylock(args->mid) != EBUSY)
+        int a = 0;
+        if (!(a = pthread_mutex_trylock(args->mid)))
         {
             for (int i = 0; i < 5; i++)
             {
@@ -26,11 +27,15 @@ void *proc1(void *arg)
             }
             pthread_mutex_unlock(args->mid);
         }
+        else 
+        {
+            printf("\nКод ошибки в первом потоке: %d\n",a);
+            fflush(stdout);
+        }
         sleep(1);
     }
     printf("\nПоток 1 закончил свою работу\n");
     pthread_exit((void*)0);
-    return nullptr;
 }
 
 void *proc2(void *arg)
@@ -39,7 +44,8 @@ void *proc2(void *arg)
     args_t *args = (args_t *)arg;
     while (args->flag == 0)
     {
-        if (pthread_mutex_trylock(args->mid) != EBUSY)
+        int a = 0;
+        if (!(a = pthread_mutex_trylock(args->mid)))
         {
             for (int i = 0; i < 5; i++)
             {
@@ -49,11 +55,15 @@ void *proc2(void *arg)
             }
             pthread_mutex_unlock(args->mid);
         }
+        else 
+        {
+            printf("\nКод ошибки во втором потоке: %d\n",a);
+            fflush(stdout);
+        }
         sleep(1);
     }
     printf("\nПоток 2 закончил свою работу\n");
     pthread_exit((void*)0);
-    return nullptr;
 }
 
 int main()

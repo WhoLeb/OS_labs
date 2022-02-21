@@ -19,7 +19,8 @@ void *proc1(void *arg)
         struct timespec tp;
         clock_gettime(CLOCK_REALTIME, &tp);
         tp.tv_sec += 1;
-        if(!pthread_mutex_timedlock(args->mid, &tp))
+        int a = 0;
+        if(!(a = pthread_mutex_timedlock(args->mid, &tp)))
         {
             for (int i = 0; i < 5; i++)
             {
@@ -29,11 +30,15 @@ void *proc1(void *arg)
             }
             pthread_mutex_unlock(args->mid);
         }
+        else 
+        {
+            printf("\nКод ошибки в первом потоке: %d\n",a);
+            fflush(stdout);
+        } 
         sleep(1);
     }
     printf("\nПоток 1 закончил свою работу\n");
     pthread_exit((void*)0);
-    return nullptr;
 }
 
 void *proc2(void *arg)
@@ -45,7 +50,8 @@ void *proc2(void *arg)
         struct timespec tp;
         clock_gettime(CLOCK_REALTIME, &tp);
         tp.tv_sec += 1;
-        if(!pthread_mutex_timedlock(args->mid, &tp))
+        int a = 0;
+        if(!(a = pthread_mutex_timedlock(args->mid, &tp)))
         {
             for (int i = 0; i < 5; i++)
             {
@@ -55,11 +61,15 @@ void *proc2(void *arg)
             }
             pthread_mutex_unlock(args->mid);
         }
+        else 
+        {
+            printf("\nКод ошибки во втором потоке: %d\n",a);
+            fflush(stdout);
+        }
         sleep(1);
     }
     printf("\nПоток 2 закончил свою работу\n");
     pthread_exit((void*)0);
-    return nullptr;
 }
 
 int main()
