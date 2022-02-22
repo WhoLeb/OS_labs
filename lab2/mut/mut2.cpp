@@ -29,7 +29,7 @@ void *proc1(void *arg)
         }
         else 
         {
-            printf("\nКод ошибки в первом потоке: %d\n",a);
+            printf("\nСообщение ошибки в первом потоке: %s\n",strerror(a));
             fflush(stdout);
         }
         sleep(1);
@@ -57,7 +57,7 @@ void *proc2(void *arg)
         }
         else 
         {
-            printf("\nКод ошибки во втором потоке: %d\n",a);
+            printf("\nСообщение ошибки во втором потоке: %s\n",strerror(a));
             fflush(stdout);
         }
         sleep(1);
