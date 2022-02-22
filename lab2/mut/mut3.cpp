@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
 typedef struct
 {
@@ -63,7 +64,7 @@ void *proc2(void *arg)
         }
         else 
         {
-            printf("\nСообщение ошибки во втором потоке: %d\n",strerror(a));
+            printf("\nСообщение ошибки во втором потоке: %s\n",strerror(a));
             fflush(stdout);
         }
         sleep(1);
