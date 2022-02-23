@@ -38,8 +38,8 @@ void* proc2(void* arg)
 
     }
     printf("\nПоток 2 закончил свою работу\n");
-    pthread_exit((void*)0);
-    return 0;
+//    pthread_exit((void*)14);
+    return (void*)1;
 }
 
 int main() 
