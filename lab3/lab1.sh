@@ -1,4 +1,4 @@
 #!/bin/sh
-g++ -c lab.cpp
-g++ -o lab.obj lab.o -pthread
+g++ -c lab1.cpp
+g++ -o lab.obj lab1.o -pthread
 ./lab.obj

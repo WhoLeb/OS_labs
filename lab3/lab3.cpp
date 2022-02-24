@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <pthread.h>
@@ -22,7 +23,7 @@ void* proc1(void *arg)
     printf("\nПоток 1 начал свою работу\n");
     t_args* args = (t_args*) arg; 
 
-    char buf[NI_MAXHOST] = "\0";
+    char buf[NI_MAXHOST];
 
     while (args->flag == 0)
     {
@@ -55,9 +56,11 @@ void* proc1(void *arg)
             fprintf(stderr, "error in getnameinfo: %s\n", gai_strerror(error));
         }
         freeaddrinfo(result);
-        
-        //write(args->fd, buf, NI_MAXHOST);
-        
+
+        if(write(args->fd, buf, NI_MAXHOST) == -1)
+        {
+            printf("Невозможно записать, ошибка: %s\n", strerror(errno));
+        }
         sleep(1);
     }
     printf("\nПоток 1 закончил свою работу\n");
@@ -68,16 +71,19 @@ void* proc2(void* arg)
 {    
     printf("\nПоток 2 начал свою работу\n");
     t_args* args = (t_args*) arg; 
-    
-    char buf[NI_MAXHOST];
 
     while(!args->flag)
     {
-        read(args->fd, buf, NI_MAXHOST);
-        printf("%s\n", buf);
+        char buf[NI_MAXHOST];
+        if(read(args->fd, buf, NI_MAXHOST)==-1)
+        {
+            printf("Невозможно считать, ошибка: %s\n",strerror(errno)); 
+        }
+        else
+            printf("hostname: %s\n", buf);
         sleep(1); 
     }
-    
+
     printf("\nПоток 2 закончил свою работу\n");
     pthread_exit((void*)0);
 }
@@ -85,22 +91,25 @@ void* proc2(void* arg)
 int main() 
 {
     printf("\nПрограмма начала работу\n");
+
     int filedes[2]; 
     pipe(filedes);
+    fcntl(filedes[0],F_SETFL, O_NONBLOCK);
+    fcntl(filedes[1],F_SETFL, O_NONBLOCK);
     t_args arg1 = {0, '1', filedes[1]};
     t_args arg2 = {0, '2', filedes[0]};
     pthread_t id1, id2;
-  
+
     pthread_create(&id1, NULL, proc1, &arg1);
     pthread_create(&id2, NULL, proc2, &arg2);
-  
+
     printf("\nПрограмма ожидает нажатия клавиши\n");
     getchar();
     printf("Клавиша нажата\n");
-  
+
     arg1.flag = 1;
     arg2.flag = 1;
-  
+
     int* exitcode1, *exitcode2;
     pthread_join(id1, (void**)&exitcode1);
     printf("Код первого потока: %p\n", exitcode1);
