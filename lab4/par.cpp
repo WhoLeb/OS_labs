@@ -22,6 +22,8 @@ int main()
             usleep(500000);
         }
     }
+    else
+        perror("fork");
     
     printf("Код завершения: %d", retval); 
 
