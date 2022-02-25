@@ -42,7 +42,6 @@ void* proc1(void *arg)
             exit(EXIT_FAILURE);
         }   
 
-        char hostname[NI_MAXHOST];
         error = getnameinfo(
                 result->ai_addr, 
                 result->ai_addrlen, 
@@ -57,7 +56,10 @@ void* proc1(void *arg)
         }
         freeaddrinfo(result);
         
-        write(args->fd, buf, NI_MAXHOST);
+        if(write(args->fd, buf, NI_MAXHOST) == -1)
+        {
+            printf("Невозможно записать, ошибка: %s\n", strerror(errno));
+        }
         sleep(1);
     }
     printf("\nПоток 1 закончил свою работу\n");
@@ -73,8 +75,13 @@ void* proc2(void* arg)
 
     while(!args->flag)
     {
-        read(args->fd, buf, NI_MAXHOST);
-        printf("%s\n", buf);
+        char buf[NI_MAXHOST];
+        if(read(args->fd, buf, NI_MAXHOST)==-1)
+        {
+            printf("Невозможно считать, ошибка: %s\n",strerror(errno)); 
+        }
+        else
+            printf("hostname: %s\n", buf);
         sleep(1); 
     }
     

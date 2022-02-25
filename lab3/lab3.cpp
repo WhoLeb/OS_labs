@@ -42,7 +42,6 @@ void* proc1(void *arg)
             exit(EXIT_FAILURE);
         }   
 
-        char hostname[NI_MAXHOST];
         error = getnameinfo(
                 result->ai_addr, 
                 result->ai_addrlen, 
