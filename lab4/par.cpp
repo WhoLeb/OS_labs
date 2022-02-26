@@ -9,14 +9,19 @@ int main()
 
     pid_t pid = fork();
 
-    printf("Идентификатор программы-родителя: %d\n", getppid());
-    printf("Идентификатор второй программы: %d\n", getpid()); 
-    printf("Идентификатор дочерней программы: %d\n", pid); 
-    
+    char* envp[] = {
+        "LANG = LC_ALL\0",
+        "HOME = /home",
+        NULL
+    };
+
     int retval;
     if (pid == 0) {
-        execle("kid", "hello", "world", NULL, NULL);
+        execle("kid", "hello", "world", NULL, envp);
     }else if (pid > 0) {
+        printf("Идентификатор программы-родителя: %d\n", getppid());
+        printf("Идентификатор второй программы: %d\n", getpid()); 
+        printf("Идентификатор дочерней программы: %d\n", pid); 
         while (waitpid(pid, &retval, WNOHANG) == 0) {
             printf("\nЖдем...\n");
             usleep(500000);

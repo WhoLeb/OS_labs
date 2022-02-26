@@ -1,12 +1,20 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-int main(int argc, char** argv) 
+int main(int argc, char** argv, char** envp) 
 {
     printf("\nПрограмма один начала работу\n");
     printf("Идентификатор программы один: %d\n", getpid()); 
     printf("Идентификатор программы-родителя: %d\n", getppid()); 
+    
+    printf("Переменные окружения:\n");
+    for(int i = 0; envp[i]; i++)
+    {
+        printf("%s\n", envp[i]);
+    }
+
     for(int i = 0; i < argc; i++)
     {
         printf("%s ", argv[i]);
