@@ -11,7 +11,6 @@
 #include <ncurses.h>
 #include <netdb.h>
 
-
 int main() 
 {
     printf("\nПрограмма начала работу\n");

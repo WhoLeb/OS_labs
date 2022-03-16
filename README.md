@@ -16,4 +16,4 @@ Labs for operation systems course
 5      ✔️      | Цикл в main()
 6      ✔️      | POSIX, тоже цикл в main
 7      ✔️      | Вариант 7.1
-8            | Интернет сокеты, протокол TCP
+8     ✔️       | Интернет сокеты, протокол TCP

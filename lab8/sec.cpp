@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <fcntl.h>
 #include <queue>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -28,9 +29,16 @@ void* sen(void* a)
     int i = 1;
     while(flag_send)
     {
-        send(ser_sock, &i, sizeof(i), 0);
-        printf("Запрос №%d сформирован\n", i);
-        i++;
+        int res = send(ser_sock, &i, sizeof(i), 0);
+        if(res == -1)
+        {
+            perror("send");
+        }
+        else
+        {
+            printf("Запрос №%d сформирован\n", i);
+            i++;
+        }
         sleep(1);
     }
     pthread_exit(NULL);
@@ -60,7 +68,7 @@ void* rec(void* a)
             i++;    
         }
     }
-   pthread_exit(NULL); 
+    pthread_exit(NULL); 
 }
 
 void* conn(void*)
@@ -79,6 +87,11 @@ void* conn(void*)
             pthread_create(&m_rec, NULL, rec, NULL);
             pthread_exit(NULL);
         }
+        else
+        {
+            perror("connect");
+            sleep(1);
+        }
     }
     pthread_exit((void*)1);
 }
@@ -87,14 +100,14 @@ int main()
 {
     printf("Программа-клиент начала работу\n"); 
     signal(SIGPIPE,handle); 
-    
+
     ser_sock = socket(AF_INET, SOCK_STREAM, 0);
     int optval = 1;
     setsockopt(ser_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-    
+
     pthread_mutex_init(&mid2,NULL); 
     pthread_create(&m_con, NULL, conn, NULL);
-    
+
     getchar();
     flag_con = 0;
     flag_rec = 0;

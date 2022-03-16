@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <queue>
 #include <stdio.h>
 #include <sys/types.h>
@@ -33,23 +34,24 @@ void* recieve(void* a)
        if (reccount == -1) 
        {
            perror("recv");
-           sleep(1);
        }
-       else if (reccount == 0) 
+       else 
        {
-           //разъединение;
-           shutdown(list_sock, SHUT_RDWR);
-           sleep(1);
+           if (reccount == 0) 
+           {
+               //разъединение;
+               shutdown(list_sock, SHUT_RDWR);
+           }
+           else
+           {
+               pthread_mutex_lock(&mid1);
+               req_q.push(rcvbuf);
+               pthread_mutex_unlock(&mid1);
+           }
        }
-       else
-       {
-           pthread_mutex_lock(&mid1);
-           req_q.push(rcvbuf);
-           pthread_mutex_unlock(&mid1);
-
-       }
+       sleep(1);
    }
-  pthread_exit(NULL); 
+   pthread_exit(NULL); 
 }
 
 void* proc(void* a)
@@ -95,11 +97,13 @@ void* await(void* a)
     {
         socklen_t addrlen = 0;
         list_sock = accept(cli_sock,(struct sockaddr*)&addr, &addrlen);
+
         if (list_sock == -1) {
             perror("accept");
             printf("\n");
             sleep(1);
         }else{
+            fcntl(list_sock, F_SETFL, O_NONBLOCK);
             pthread_create(&m_recieve, NULL, recieve, NULL); 
             pthread_create(&m_proc, NULL, proc, NULL);
             pthread_exit(NULL); 
@@ -114,13 +118,19 @@ int main()
     printf("Сервер начал работу\n");
     cli_sock = socket(AF_INET, SOCK_STREAM, 0);
     signal(SIGPIPE,handle); 
+    fcntl(cli_sock, F_SETFL, O_NONBLOCK);     
 
     struct sockaddr_in serverAddr;
     serverAddr.sin_family =		AF_INET;
     serverAddr.sin_port =		htons(7000);
     serverAddr.sin_addr.s_addr =	inet_addr("127.0.0.1");
 
-    (void)bind(cli_sock, (sockaddr*)&serverAddr, sizeof(serverAddr));
+    int ret = bind(cli_sock, (sockaddr*)&serverAddr, sizeof(serverAddr));
+    if(ret == -1)
+    {
+        perror("bind");
+        return -1;
+    }
     listen(cli_sock, sizeof(int));
     int optval = 1;
     setsockopt(cli_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
